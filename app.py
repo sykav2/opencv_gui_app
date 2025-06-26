@@ -1,5 +1,9 @@
 import tkinter as tk
 from tkinter import filedialog, messagebox
+
+# ✅ Импортируем simpledialog отдельно
+import tkinter.simpledialog as tk_simpledialog
+
 import cv2
 import numpy as np
 
@@ -60,10 +64,10 @@ class ImageViewerApp:
             messagebox.showwarning("Предупреждение", "Сначала загрузите изображение!")
             return
         try:
-            x = int(tk.simpledialog.askstring("Обрезка", "Введите x:"))
-            y = int(tk.simpledialog.askstring("Обрезка", "Введите y:"))
-            w = int(tk.simpledialog.askstring("Обрезка", "Введите ширину:"))
-            h = int(tk.simpledialog.askstring("Обрезка", "Введите высоту:"))
+            x = int(tk_simpledialog.askstring("Обрезка", "Введите x:"))
+            y = int(tk_simpledialog.askstring("Обрезка", "Введите y:"))
+            w = int(tk_simpledialog.askstring("Обрезка", "Введите ширину:"))
+            h = int(tk_simpledialog.askstring("Обрезка", "Введите высоту:"))
             h_img, w_img = self.image.shape[:2]
             if x < 0 or y < 0 or x + w > w_img or y + h > h_img:
                 raise ValueError("Координаты вне диапазона")
@@ -77,7 +81,7 @@ class ImageViewerApp:
             messagebox.showwarning("Предупреждение", "Сначала загрузите изображение!")
             return
         try:
-            angle = float(tk.simpledialog.askstring("Поворот", "Введите угол:"))
+            angle = float(tk_simpledialog.askstring("Поворот", "Введите угол:"))
             h, w = self.image.shape[:2]
             center = (w // 2, h // 2)
             M = cv2.getRotationMatrix2D(center, angle, 1.0)
@@ -91,10 +95,10 @@ class ImageViewerApp:
             messagebox.showwarning("Предупреждение", "Сначала загрузите изображение!")
             return
         try:
-            cx = int(tk.simpledialog.askstring("Круг", "x центра:"))
-            cy = int(tk.simpledialog.askstring("Круг", "y центра:"))
-            r = int(tk.simpledialog.askstring("Круг", "радиус:"))
-            cv2.circle(self.image, (cx, cy), r, (0, 0, 255), 2)
+            cx = int(tk_simpledialog.askstring("Круг", "x центра:"))
+            cy = int(tk_simpledialog.askstring("Круг", "y центра:"))
+            r = int(tk_simpledialog.askstring("Круг", "радиус:"))
+            cv2.circle(self.image, (cx, cy), r, (0, 0, 255), 2)  # Красный цвет
             self.show_image()
         except Exception as e:
             messagebox.showerror("Ошибка", f"Неверный ввод: {e}")
@@ -106,7 +110,12 @@ class ImageViewerApp:
         zero = np.zeros_like(self.image[:, :, 0])
         channels = [zero, zero, zero]
         channels[channel] = self.image[:, :, channel]
+
         merged = cv2.merge(channels)
+
+        # ✅ Нормализуем изображение для улучшения контраста
+        merged = cv2.normalize(merged, None, 0, 255, cv2.NORM_MINMAX)
+
         self.image = merged
         self.show_image()
 
